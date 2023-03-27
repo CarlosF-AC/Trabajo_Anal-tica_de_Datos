@@ -1,0 +1,136 @@
+---
+title: "Reporte: Empresas del sector privado por mes 2021"
+author: "Carlos Fernando Aguirre Coveñas"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_download: true
+---
+
+## <img src = "https://www.lampadia.com/assets/uploads_images/images/b0-web.jpg">
+
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Introducción**
+
+```{r Configuración Inicial}
+
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(sf)
+library(readxl)
+library(ggrepel)
+library(dplyr)
+
+```
+
+## **Cargando el dataset**
+
+```{r Carga de Datos}
+
+setwd("C:/R/visualizacion_datos")
+empresas2021 <- read.csv("Empresas sector privado por mes Según Distritos 2021.csv",sep = ",")
+
+```
+
+## **Trabajando con el Dataset**
+
+```{r Visualización de Datos, message=FALSE}
+
+empresas2021$Enero <- gsub("-", "0", empresas2021$Enero)
+empresas2021$Enero <- gsub(" ", "", empresas2021$Enero)
+empresas2021$Enero <- as.numeric(empresas2021$Enero)
+
+empresas2021$Febrero <- gsub("-", 0, empresas2021$Febrero)
+empresas2021$Febrero <- gsub(" ", "", empresas2021$Febrero)
+empresas2021$Febrero <- as.numeric(empresas2021$Febrero)
+
+empresas2021$Marzo <- gsub("-", 0, empresas2021$Marzo)
+empresas2021$Marzo <- gsub(" ", "", empresas2021$Marzo)
+empresas2021$Marzo <- as.numeric(empresas2021$Marzo)
+
+empresas2021$Abril <- gsub("-", 0, empresas2021$Abril)
+empresas2021$Abril <- gsub(" ", "", empresas2021$Abril)
+empresas2021$Abril <- as.numeric(empresas2021$Abril)
+
+empresas2021$Mayo <- gsub("-", 0, empresas2021$Mayo)
+empresas2021$Mayo <- gsub(" ", "", empresas2021$Mayo)
+empresas2021$Mayo <- as.numeric(empresas2021$Mayo)
+
+empresas2021$Junio <- gsub("-", 0, empresas2021$Junio)
+empresas2021$Junio <- gsub(" ", "", empresas2021$Junio)
+empresas2021$Junio <- as.numeric(empresas2021$Junio)
+
+empresas2021$Julio <- gsub("-", 0, empresas2021$Julio)
+empresas2021$Julio <- gsub(" ", "", empresas2021$Julio)
+empresas2021$Julio <- as.numeric(empresas2021$Julio)
+
+empresas2021$Agosto <- gsub("-", 0, empresas2021$Agosto)
+empresas2021$Agosto <- gsub(" ", "", empresas2021$Agosto)
+empresas2021$Agosto <- as.numeric(empresas2021$Agosto)
+
+empresas2021$Setiembre <- gsub("-", 0, empresas2021$Setiembre)
+empresas2021$Setiembre <- gsub(" ", "", empresas2021$Setiembre)
+empresas2021$Setiembre <- as.numeric(empresas2021$Setiembre)
+
+empresas2021$Octubre <- gsub("-", 0, empresas2021$Octubre)
+empresas2021$Octubre <- gsub(" ", "", empresas2021$Octubre)
+empresas2021$Octubre <- as.numeric(empresas2021$Octubre)
+
+empresas2021$Noviembre <- gsub("-", 0, empresas2021$Noviembre)
+empresas2021$Noviembre <- gsub(" ", "", empresas2021$Noviembre)
+empresas2021$Noviembre <- as.numeric(empresas2021$Noviembre)
+
+empresas2021$Diciembre <- gsub("-", 0, empresas2021$Diciembre)
+empresas2021$Diciembre <- gsub(" ", "", empresas2021$Diciembre)
+empresas2021$Diciembre <- as.numeric(empresas2021$Diciembre)
+
+```
+
+```{r Dataset}
+
+empresas2021 <- empresas2021 %>% 
+  mutate(Totales = Enero + Febrero + Marzo + Abril + Mayo + Junio + Julio + Agosto + Setiembre + Octubre + Noviembre + Diciembre)
+
+empresas2021_1 <- empresas2021 %>% 
+  gather(key="Mes",value="Valor", -c(Código.de.Ubigeo,DISTRITOS)) %>% 
+  arrange(DISTRITOS)
+
+empresas2021_2 <- empresas2021_1 %>%
+  group_by(Mes) %>%
+  summarise(Suma = sum(Valor))
+
+empresas2021_2 <- empresas2021_2[-c(13), ]
+
+NumMes <- c(4,8,12,1,2,7,6,3,5,11,10,9)
+empresas2021_2 <- cbind(empresas2021_2, NumMes)
+empresas2021_2 <- empresas2021_2[with(empresas2021_2, order(empresas2021_2$NumMes)),]
+```
+
+## **Graficando el Dataset**
+
+```{r Gráfico}
+
+empresas2021 %>% 
+  filter(Totales >= 100000) %>% 
+  ggplot(mapping = aes(x = DISTRITOS , y = Totales))+
+  geom_bar(stat = "identity", fill = c("red","blue","green","orange","black","grey","pink", "purple"))+coord_flip()+
+  geom_text(aes(label = Totales))
+
+```
+
+```{r Gráfico 2}
+
+empresas2021_2 %>% 
+  ggplot(mapping = aes(x = Mes , y = Suma)) +
+  geom_col() +
+  geom_text(aes(label = Suma))
+
+```
+
